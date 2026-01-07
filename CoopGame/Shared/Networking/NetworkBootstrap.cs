@@ -14,6 +14,8 @@ public static class NetworkBootstrap {
 
         MessageSerializer.register<ClientJoinMessage>(MessageType.ClientJoin);
         MessageSerializer.register<ServerWelcomeMessage>(MessageType.ServerWelcome);
+        MessageSerializer.register<ChunkDataMessage>(MessageType.ChunkData);
+        MessageSerializer.register<ChunkRequestMessage>(MessageType.ChunkRequest);
 
         Console.WriteLine("[NetworkBootstrap] Message registration complete");
     }
