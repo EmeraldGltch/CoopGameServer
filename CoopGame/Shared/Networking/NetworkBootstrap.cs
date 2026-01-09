@@ -16,6 +16,7 @@ public static class NetworkBootstrap {
         MessageSerializer.register<ServerWelcomeMessage>(MessageType.ServerWelcome);
         MessageSerializer.register<ChunkDataMessage>(MessageType.ChunkData);
         MessageSerializer.register<ChunkRequestMessage>(MessageType.ChunkRequest);
+        MessageSerializer.register<PlayerSpawnMessage>(MessageType.PlayerSpawn);
 
         Console.WriteLine("[NetworkBootstrap] Message registration complete");
     }

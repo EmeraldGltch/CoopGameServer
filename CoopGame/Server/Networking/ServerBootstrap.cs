@@ -1,6 +1,5 @@
 ﻿using System.Net.Sockets;
 using System.Net;
-using System.IO;
 
 using CoopGame.Server.Core.Generation;
 using CoopGame.Server.World;
@@ -12,13 +11,17 @@ using CoopGame.Shared.World.Terrain;
 namespace CoopGame.Server.Networking;
 
 public class ServerBootstrap {
+    private GameServer gameServer;
+
     private readonly TcpListener listener;
     private readonly List<TcpClient> clients = new();
+    private readonly Dictionary<TcpClient, Player> clientPlayers = new();
     private bool running = false;
 
     private readonly ChunkManager chunkManager = new();
 
-    public ServerBootstrap(int port = 7777) {
+    public ServerBootstrap(GameServer gameServer, int port = 7777) {
+        this.gameServer = gameServer;
         listener = new TcpListener(IPAddress.Any, port);
     }
 
@@ -59,16 +62,30 @@ public class ServerBootstrap {
                 }
             }
         } catch (Exception e) {
-            Console.WriteLine($"[Server] Error: {e.Message}");
+            Console.WriteLine($"[Server] {e.Message}");
         } finally {
             lock (clients) {
                 clients.Remove(client);
             }
 
-            client.Close();
-        }
+            Player? associatedPlayer = null;
 
-        Console.WriteLine("[Server] Client disconnected");
+            lock(clientPlayers) {
+                if (clientPlayers.TryGetValue(client, out var player)) {
+                    associatedPlayer = player;
+                    clientPlayers.Remove(client);
+                }
+            }
+
+            if (associatedPlayer != null) {
+                gameServer.playerManager.removePlayer(associatedPlayer.id);
+            }
+
+            // TODO: Broadcast player despawn to other clients
+
+            client.Close();
+            Console.WriteLine("[Server] Client disconnected");
+        }
     }
 
     public void sendMessage(TcpClient client, IMessage message) {
@@ -77,13 +94,53 @@ public class ServerBootstrap {
     }
 
     private void handleMessage(TcpClient client, IMessage message) {
+
         switch (message) {
             case ClientJoinMessage join:
-                Console.WriteLine($"[Server] {join.playerName} joined");
-
                 sendMessage(client, new ServerWelcomeMessage {
                     welcomeText = $"Welcome, {join.playerName}!"
                 });
+
+                var player = new Player(0, 0, 16);
+
+                gameServer.playerManager.addPlayer(player);
+
+                lock(clientPlayers) {
+                    clientPlayers[client] = player;
+                }
+
+                sendMessage(client, new PlayerSpawnMessage {
+                    playerId = player.id.ToString(),
+                    worldX = player.worldX,
+                    worldY = player.worldY,
+                    isLocalPlayer = true
+                });
+
+                Console.WriteLine($"[Server] {join.playerName} joined");
+
+                foreach(var kvp in gameServer.playerManager.getAllPlayers()) {
+                    var otherPlayer = kvp;
+
+                    if (otherPlayer.id != player.id) {
+                        sendMessage(client, new PlayerSpawnMessage {
+                            playerId = otherPlayer.id.ToString(),
+                            worldX = otherPlayer.worldX,
+                            worldY = otherPlayer.worldY,
+                            isLocalPlayer = false
+                        });
+
+                        foreach(var otherClient in clients) {
+                            if (otherClient != client) {
+                                sendMessage(otherClient, new PlayerSpawnMessage {
+                                    playerId = player.id.ToString(),
+                                    worldX = player.worldX,
+                                    worldY = player.worldY,
+                                    isLocalPlayer = false
+                                });
+                            }
+                        }
+                    }
+                }
 
                 break;
             case ChunkRequestMessage chunkRequest:

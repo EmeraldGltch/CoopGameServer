@@ -7,4 +7,21 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="CoopGame\Shared\Networking\IMessage.cs.uid" />
+    <None Remove="CoopGame\Shared\Networking\MessageSerializer.cs.uid" />
+    <None Remove="CoopGame\Shared\Networking\Messages\ChunkDataMessage.cs.uid" />
+    <None Remove="CoopGame\Shared\Networking\Messages\ChunkRequestMessage.cs.uid" />
+    <None Remove="CoopGame\Shared\Networking\Messages\ClientJoinMessage.cs.uid" />
+    <None Remove="CoopGame\Shared\Networking\Messages\PlayerMoveMessage.cs.uid" />
+    <None Remove="CoopGame\Shared\Networking\Messages\PlayerPositionMessage.cs.uid" />
+    <None Remove="CoopGame\Shared\Networking\Messages\ServerWelcomeMessage.cs.uid" />
+    <None Remove="CoopGame\Shared\Networking\MessageType.cs.uid" />
+    <None Remove="CoopGame\Shared\Networking\NetworkBootstrap.cs.uid" />
+    <None Remove="CoopGame\Shared\World\Terrain\IReadOnlyChunk.cs.uid" />
+    <None Remove="CoopGame\Shared\World\Terrain\IReadOnlyTile.cs.uid" />
+    <None Remove="CoopGame\Shared\World\Terrain\TerrainType.cs.uid" />
+    <None Remove="CoopGame\Shared\World\Terrain\TerrainUtils.cs.uid" />
+  </ItemGroup>
+
 </Project>

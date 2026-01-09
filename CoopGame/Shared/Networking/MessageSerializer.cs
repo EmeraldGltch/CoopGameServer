@@ -20,7 +20,7 @@ public static class MessageSerializer {
     // Serialize and Send
     public static void send(Stream stream, IMessage message) {
         if (!typeReverseMap.TryGetValue(message.GetType(), out var type)) {
-            throw new Exception("Message type not registered: {message.GetType().Name}");
+            throw new Exception($"Message type not registered: {message.GetType().Name}");
         }
 
         using var writer = new BinaryWriter(stream, System.Text.Encoding.UTF8, leaveOpen: true);

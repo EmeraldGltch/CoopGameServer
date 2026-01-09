@@ -1,16 +1,18 @@
 ﻿namespace CoopGame.Server;
 
 using CoopGame.Server.Networking;
-
+using CoopGame.Server.World;
 using CoopGame.Shared.Networking;
 
 public class GameServer {
     private ServerBootstrap network;
 
+    public PlayerManager playerManager = new PlayerManager();
+
     public void start() {
         NetworkBootstrap.initialize();
 
-        network = new ServerBootstrap(7777);
+        network = new ServerBootstrap(this, 7777);
         network.start();
 
         Console.WriteLine("[Server] Server startup complete");

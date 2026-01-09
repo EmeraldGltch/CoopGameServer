@@ -1,8 +1,11 @@
 ﻿using CoopGame.Server;
+using CoopGame.Server.World;
 
 internal static class Program {
     private static void Main(string[] args) {
         var server = new GameServer();
+
+        // Triggers every server layer needed for gameplay
         server.start();
 
         Console.WriteLine("Press Ctrl+C to shut down.");
