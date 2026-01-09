@@ -4,6 +4,7 @@ using System.Linq;
 
 using CoopGame.Server.Core.Generation;
 using CoopGame.Server.World;
+using CoopGame.Shared.Networking.Messages;
 
 namespace CoopGame.Server.Simulation;
 public class SimulationScheduler {

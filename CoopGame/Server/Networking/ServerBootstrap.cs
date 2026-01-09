@@ -15,6 +15,7 @@ public class ServerBootstrap {
 
     private readonly TcpListener listener;
     private readonly List<TcpClient> clients = new();
+    private readonly object clientLock = new();
     private readonly Dictionary<TcpClient, Player> clientPlayers = new();
     private bool running = false;
 
@@ -43,7 +44,7 @@ public class ServerBootstrap {
                 clients.Add(client);
             }
 
-            Console.WriteLine($"[Server] Client connected");
+            Console.WriteLine($"[Server] Client connected. Clients Connected: {clients.Count}");
 
             Thread clientThread = new Thread(() => handleClient(client));
             clientThread.Start();
@@ -62,7 +63,7 @@ public class ServerBootstrap {
                 }
             }
         } catch (Exception e) {
-            Console.WriteLine($"[Server] {e.Message}");
+            Console.WriteLine($"[Server] Error: {e.Message}");
         } finally {
             lock (clients) {
                 clients.Remove(client);
@@ -84,13 +85,37 @@ public class ServerBootstrap {
             // TODO: Broadcast player despawn to other clients
 
             client.Close();
-            Console.WriteLine("[Server] Client disconnected");
+            Console.WriteLine($"[Server] Client disconnected. Clients Connected: {clients.Count}");
         }
     }
 
     public void sendMessage(TcpClient client, IMessage message) {
-        NetworkStream stream = client.GetStream();
-        MessageSerializer.send(stream, message);
+        if (client == null || !client.Connected) {
+            return;
+        }
+
+        try {
+            NetworkStream stream = client.GetStream();
+            MessageSerializer.send(stream, message);
+        } catch (Exception e) {
+            Console.WriteLine($"[Server] Error sending message to client: {e.Message}");
+        }
+    }
+
+    public void broadcast(IMessage message, TcpClient? excludeClient = null) {
+        lock (clients) {
+            foreach (var client in clients) {
+                if (client == excludeClient || !client.Connected) {
+                    continue;
+                }
+
+                try {
+                    sendMessage(client, message);
+                } catch (Exception e) {
+                    Console.WriteLine($"[Server] Error broadcasting to client: {e.Message}");
+                }
+            }
+        }
     }
 
     private void handleMessage(TcpClient client, IMessage message) {
@@ -168,6 +193,23 @@ public class ServerBootstrap {
                     terrainTypes = terrainTypes,
                     pollutionLevels = pollutionLevels
                 });
+
+                break;
+            case PlayerMoveMessage move:
+                if(!Guid.TryParse(move.playerId, out var playerId)) {
+                    Console.WriteLine($"[Server] Invalid player ID in PlayerMoveMessage: {move.playerId}");
+                    break;
+                }
+
+                if(gameServer.playerManager.tryGetPlayer(playerId, out var movingPlayer)) {
+                    movingPlayer.setPosition(movingPlayer.worldX + move.deltaX, movingPlayer.worldY + move.deltaY);
+
+                    broadcast(new PlayerUpdateMessage {
+                        playerId = movingPlayer.id.ToString(),
+                        worldX = movingPlayer.worldX,
+                        worldY = movingPlayer.worldY
+                    }, excludeClient: client);
+                }
 
                 break;
             default:

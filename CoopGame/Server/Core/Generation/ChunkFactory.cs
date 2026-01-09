@@ -26,7 +26,7 @@ public static class ChunkFactory {
                     noiseValue = -noiseValue;
                 }
 
-                chunk.tiles[x, y].pollutionLevel = 0f;
+                chunk.tiles[x, y].pollutionLevel = noiseValue;
 
                 chunk.tiles[x, y].terrainType = determineTerrain(noiseValue);
             }

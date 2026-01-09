@@ -5,5 +5,7 @@ public enum MessageType : byte {
     ServerWelcome = 2,
     ChunkData = 3,
     ChunkRequest = 4,
-    PlayerSpawn = 5
+    PlayerSpawn = 5,
+    PlayerMove = 6,
+    PlayerUpdate = 7
 }
