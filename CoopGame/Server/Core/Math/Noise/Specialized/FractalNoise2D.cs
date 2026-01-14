@@ -1,6 +1,7 @@
-﻿using System;
+﻿using CoopGame.Server.Core.Math.Noise;
+using System;
 
-namespace CoopGame.Server.Core.Math.Noise;
+namespace CoopGame.Server.Core.Math.Noise.Specialized;
 
 public class FractalNoise2D : INoise2D {
     private readonly INoise2D baseNoise;
@@ -18,7 +19,8 @@ public class FractalNoise2D : INoise2D {
     public float noise(float x, float y) {
         float total = 0f;
         float amplitude = 1f;
-        float frequency = 0.005f;
+        float frequency = 0.0007154f;
+        //float frequency = 0.005f;
         float maxValue = 0f;
 
         for (int i = 0; i < octaves; i++) {

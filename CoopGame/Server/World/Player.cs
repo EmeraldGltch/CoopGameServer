@@ -13,14 +13,21 @@ public class Player {
 
     private readonly int chunkSize;
 
-    public Player(float startX, float startY, int chunkSize) {
-        id = Guid.NewGuid();
-        this.chunkSize = chunkSize;
+	public Player(float startX, float startY, int chunkSize) {
+		id = Guid.NewGuid();
+		this.chunkSize = chunkSize;
 
-        setPosition(startX, startY);
-    }
+		setPosition(startX, startY);
+	}
 
-    public void setPosition(float x, float y) {
+	public Player(Guid id, float startX, float startY, int chunkSize) {
+		this.id = id;
+		this.chunkSize = chunkSize;
+
+		setPosition(startX, startY);
+	}
+
+	public void setPosition(float x, float y) {
         worldX = x;
         worldY = y;
 

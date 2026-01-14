@@ -7,29 +7,30 @@ using CoopGame.Server.World;
 using CoopGame.Shared.Networking.Messages;
 
 namespace CoopGame.Server.Simulation;
+
 public class SimulationScheduler {
     private readonly ChunkManager chunkManager;
-    private readonly List<Player> players;
+    private readonly PlayerManager playerManager;
     private readonly int maxChunksPerTick;
     private readonly int maxCatchUpTicksPerTick;
 
     private readonly SimulationDebugger debugger = new();
 
-    public SimulationScheduler(ChunkManager chunkManager, List<Player> players, int maxChunksPerTick = 50, int maxCatchUpTicksPerTick = 6) {
+    public SimulationScheduler(ChunkManager chunkManager, PlayerManager playerManager, int maxChunksPerTick = 50, int maxCatchUpTicksPerTick = 6) {
         this.chunkManager = chunkManager;
-        this.players = players;
+        this.playerManager = playerManager;
         this.maxChunksPerTick = maxChunksPerTick;
         this.maxCatchUpTicksPerTick = maxCatchUpTicksPerTick;
     }
 
-    private IEnumerable<Chunk> prioritizeChunks(IEnumerable<Chunk> chunks) {
-        return chunks.OrderByDescending(c => calculateChunkPriority(c));
+    private IEnumerable<Chunk> prioritizeChunks(IEnumerable<Chunk> chunks, List<Player> players) {
+        return chunks.OrderByDescending(c => calculateChunkPriority(c, players));
     }
 
-    private int calculateChunkPriority(Chunk chunk) {
+    private int calculateChunkPriority(Chunk chunk, List<Player> players) {
         int minDistance = int.MaxValue;
 
-        foreach (var player in players) {
+        foreach(var player in players) {
             int dx = chunk.chunkX - player.chunkX;
             int dy = chunk.chunkY - player.chunkY;
             int distance = Math.Abs(dx) + Math.Abs(dy);
@@ -43,10 +44,12 @@ public class SimulationScheduler {
 
     public void tick(double delta) {
         // Update simulated chunks near players
-        chunkManager.updateChunks(players, simulationRadius: 4);
+        chunkManager.updateChunks(playerManager.getAllPlayers(), simulationRadius: 4);
 
-        var allChunks = chunkManager.getAllSimulatedChunks();
-        var prioritizedChunks = prioritizeChunks(allChunks).Take(maxChunksPerTick);
+        var allChunks = chunkManager.getAllSimulatedChunks()
+            .Where(c => c.pendingTicks > 0 || c.state != ChunkState.Dormant);
+
+        var prioritizedChunks = prioritizeChunks(allChunks, playerManager.getAllPlayers()).Take(maxChunksPerTick);
 
         HashSet<Chunk> alreadySimulated = [];
 

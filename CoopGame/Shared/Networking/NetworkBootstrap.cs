@@ -19,7 +19,8 @@ public static class NetworkBootstrap {
         MessageSerializer.register<PlayerSpawnMessage>(MessageType.PlayerSpawn);
         MessageSerializer.register<PlayerMoveMessage>(MessageType.PlayerMove);
         MessageSerializer.register<PlayerUpdateMessage>(MessageType.PlayerUpdate);
+        MessageSerializer.register<TimeOfDayMessage>(MessageType.TimeOfDay);
 
-        Console.WriteLine("[NetworkBootstrap] Message registration complete");
+		Console.WriteLine("[NetworkBootstrap] Message registration complete");
     }
 }

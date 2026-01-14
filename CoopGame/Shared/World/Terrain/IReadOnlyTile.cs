@@ -2,5 +2,5 @@
 
 public interface IReadOnlyTile {
     TerrainType terrainType { get; }
-    float pollutionLevel { get; }
+    float elevation { get; }
 }

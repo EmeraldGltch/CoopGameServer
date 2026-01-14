@@ -7,5 +7,6 @@ public enum MessageType : byte {
     ChunkRequest = 4,
     PlayerSpawn = 5,
     PlayerMove = 6,
-    PlayerUpdate = 7
+    PlayerUpdate = 7,
+    TimeOfDay = 8
 }

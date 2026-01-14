@@ -174,24 +174,24 @@ public class ServerBootstrap {
                 // Prepare server's response
                 int size = chunk.size;
                 TerrainType[,] terrain = new TerrainType[size, size];
-                float[,] pollution = new float[size, size];
+                float[,] elevation = new float[size, size];
 
                 for(int x = 0; x < size; x++) {
                     for (int y = 0; y < size; y++) {
+                        elevation[x, y] = chunk.tiles[x, y].elevation;
                         terrain[x, y] = chunk.tiles[x, y].terrainType;
-                        pollution[x, y] = chunk.tiles[x, y].pollutionLevel;
                     }
                 }
 
                 int[] terrainTypes = TerrainUtils.flattenTerrain(terrain);
-                float[] pollutionLevels = TerrainUtils.flattenFloat(pollution);
+                float[] elevations = TerrainUtils.flattenFloat(elevation);
 
                 sendMessage(client, new ChunkDataMessage {
                     chunkX = chunk.chunkX,
                     chunkY = chunk.chunkY,
                     chunkSize = size,
-                    terrainTypes = terrainTypes,
-                    pollutionLevels = pollutionLevels
+                    elevations = elevations,
+                    terrainTypes = terrainTypes
                 });
 
                 break;
@@ -218,7 +218,13 @@ public class ServerBootstrap {
         }
     }
 
-    public void stop() {
+    public bool hasConnectedClients() {
+        lock (clients) {
+            return clients.Count > 0;
+        }
+	}
+
+	public void stop() {
         running = false;
         listener.Stop();
     }

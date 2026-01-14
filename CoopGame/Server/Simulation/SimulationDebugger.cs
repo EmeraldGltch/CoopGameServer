@@ -11,17 +11,6 @@ public class SimulationDebugger {
     public void validateChunk(Chunk chunk) {
         if (!isEnabled)
             return;
-
-        for (int x = 0; x < chunk.tiles.GetLength(0); x++) {
-            for (int y = 0; y < chunk.tiles.GetLength(0); y++) {
-                var tile = chunk.tiles[x, y];
-
-                if (tile.pollutionLevel < 0f || tile.pollutionLevel > 1f)
-                    logError($"Tile ({x},{y}) in Chunk ({chunk.chunkX},{chunk.chunkY}) has invalid pollution: {tile.pollutionLevel}");
-                if (tile.fertilityLevel < 0f || tile.fertilityLevel > 1f)
-                    logError($"Tile ({x},{y}) in Chunk ({chunk.chunkX},{chunk.chunkY}) has invalid fertility: {tile.fertilityLevel}");
-            }
-        }
     }
 
     public void logPlayerAction(int chunkX, int chunkY, int tileX, int tileY, float amount) {

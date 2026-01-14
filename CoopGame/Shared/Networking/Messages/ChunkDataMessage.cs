@@ -8,17 +8,17 @@ public class ChunkDataMessage : IMessage {
     public int chunkY { get; set; }
     public int chunkSize { get; set; }
 
-    public int[] terrainTypes { get; set; }             // Flattened array of every tile's terrain type
-    public float[] pollutionLevels { get; set; }       // Flattened array of every tile's pollution level
+	public int[] terrainTypes { get; set; }             // Flattened array of every tile's terrain type
+	public float[] elevations { get; set; }             // Flattened array of every tile's elevation
 
-    public static ChunkDataMessage fromChunk(int chunkX, int chunkY, TerrainType[,] terrainTypes, float[,] pollutionLevels) {
+	public static ChunkDataMessage fromChunk(int chunkX, int chunkY, TerrainType[,] terrainTypes, float[,] elevations) {
         return new ChunkDataMessage {
             chunkX = chunkX,
             chunkY = chunkY,
             chunkSize = terrainTypes.GetLength(0),
 
-            terrainTypes = TerrainUtils.flattenTerrain(terrainTypes),
-            pollutionLevels = TerrainUtils.flattenFloat(pollutionLevels)
+            elevations = TerrainUtils.flattenFloat(elevations),
+			terrainTypes = TerrainUtils.flattenTerrain(terrainTypes)
         };
     }
 }

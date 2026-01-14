@@ -8,10 +8,14 @@ internal static class Program {
         // Triggers every server layer needed for gameplay
         server.start();
 
-        Console.WriteLine("Press Ctrl+C to shut down.");
+        Thread cliThread = new Thread(() => commandLoop(server));
+        cliThread.IsBackground = true;
+        cliThread.Start();
+
         waitForShutdown();
 
         server.stop();
+        cliThread.Join();
     }
 
     static void waitForShutdown() {
@@ -23,5 +27,33 @@ internal static class Program {
         };
 
         exitEvent.WaitOne();
+    }
+
+    static void commandLoop(GameServer server) {
+        while(true) {
+            string? input = Console.ReadLine()?.Trim().ToLower();
+            if(input == null) {
+                continue;
+            }
+
+            switch (input) {
+                case "stop":
+                    Environment.Exit(0);
+                    break;
+                case "players":
+                    var players = server.playerManager.getAllPlayers();
+
+                    Console.WriteLine($"[Server] {players.Count} Players online:");
+
+                    foreach (var p in players) {
+                        Console.WriteLine($"    - {p.id} at ({(p.worldX / 16):F1}, {(p.worldY / 16):F1})");
+                    }
+
+                    break;
+                default:
+                    Console.WriteLine("[Server] Unknown command");
+                    break;
+            }
+        }
     }
 }
